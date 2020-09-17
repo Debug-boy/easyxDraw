@@ -47,10 +47,6 @@ void LineEqual(const char* equal,float length,COLORREF color)
 	POINT p1, p2;
 	sscanf(equal, "y=%fx%f",&k, &b);
 
-	//printf("%s\n", equal);
-	//printf("%f %f",k, b);
-	//exit(1);
-
 	x_intercept = -(b / k);
 	y_intercept = b;
 
@@ -81,8 +77,6 @@ int main(int argc, char* argv[]) {
 
 	LineEqual((char*)"y=2x-4",200,CYAN);
 	
-
-
 
 	getchar();
 	return 0;
