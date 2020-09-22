@@ -65,6 +65,11 @@ void LineEqual(const char* equal,float length,COLORREF color)
 }
 
 
+void DrawAbsLine(char* express)
+{
+
+}
+
 
 int main(int argc, char* argv[]) {
 
