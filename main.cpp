@@ -2,8 +2,13 @@
 #include <iostream>
 #include <easyx.h>
 
-#define SIGHT_W 800
-#define SIGHT_H 800
+#define SIGHT_W		800
+#define SIGHT_H		800
+#define SIGHT_MAX	800
+#define SIGHT_HALF	400
+
+void LineEqual(const char* equal, float length, COLORREF color);
+void LineEqual(float _value, float mod, int length, COLORREF color);
 
 void DrawQuadrant()
 {
@@ -39,13 +44,33 @@ void DrawPhyLine()
 	}
 }
 
+
+//y=a*x*x+bx+c
+void DrawPhyLine(char* expression) {
+
+	static float a, b, c;
+	static float x, y;
+	int ret = sscanf(expression, "%f*x*x%fx%f", &a, &b, &c);
+
+	//half = -(b/2*a);
+
+	float half_X = -(b / 2 * a);
+	LineEqual(half_X,1,SIGHT_MAX,RED);
+
+	for (x = -SIGHT_W; x < SIGHT_W; x += 0.01f) {
+		y = a *(x*x) + (b*x) + c;
+		putpixel(x*10, y*10, CYAN);
+	}
+}
+
+
 //y=kx+b
 void LineEqual(const char* equal,float length,COLORREF color)
 {
 	float y, k, b;
 	float x_intercept, y_intercept;
 	POINT p1, p2;
-	sscanf(equal, "y=%fx%f",&k, &b);
+	int ret  = sscanf(equal, "y=%fx%f",&k, &b);
 
 	x_intercept = -(b / k);
 	y_intercept = b;
@@ -64,6 +89,18 @@ void LineEqual(const char* equal,float length,COLORREF color)
 	}
 }
 
+//1.x=0,  2.y=0;
+void LineEqual(float _value, float mod, int length, COLORREF color) {
+	setlinecolor(color);
+
+	_value *= 10;
+
+	if (mod)
+		line(_value, length / 2, _value, -(length / 2));
+	else
+		line(length / 2, _value, -(length / 2), _value);
+}
+
 
 void DrawAbsLine(char* express)
 {
@@ -73,16 +110,16 @@ void DrawAbsLine(char* express)
 
 int main(int argc, char* argv[]) {
 
-
 	initgraph(800, 800, 0);
 	InitMyDraw();
 	DrawQuadrant();
 
-	DrawPhyLine();
+	//(x-2)(x-3)=0
+	//"%f*x*x%fx%f"
+	DrawPhyLine((char*)"1*x*x-4x+3");
+	LineEqual((char*)"y=2x-6",SIGHT_MAX,GREEN);
+	//LineEqual(-4, 0, 200, CYAN);
 
-	LineEqual((char*)"y=2x-4",200,CYAN);
-	
-
-	getchar();
+	int ret = getchar();
 	return 0;
 }
