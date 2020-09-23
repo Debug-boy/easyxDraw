@@ -8,6 +8,8 @@
 #define SIGHT_HALF	400
 #define SIGHT_SCALE 10
 
+#define PI 3.1415926f
+
 typedef struct {
 	float x;
 	float y;
@@ -119,22 +121,34 @@ void CicleEqual(char* express, COLORREF color) {
 }
 
 //»æÖÆsinº¯ÊýÍ¼Ïñ
-void DrawSin()
+void DrawSin(COLORREF color)
 {
+	static float y, x;
+	for (x = -SIGHT_HALF; x <= SIGHT_HALF; x += 0.001f) {
+		y = sinf(x);
+		putpixel(x * SIGHT_SCALE, y * SIGHT_SCALE, color);
+	}
 
 }
 
-
 //»æÖÆcosº¯ÊýÍ¼Ïñ
-void DrawCos()
+void DrawCos(COLORREF color)
 {
-
+	static float y, x;
+	for (x = -SIGHT_HALF; x <= SIGHT_HALF; x += 0.001f) {
+		y = cosf(x);
+		putpixel(x * SIGHT_SCALE, y * SIGHT_SCALE, color);
+	}
 }
 
 //»æÖÆtanº¯ÊýÍ¼Ïñ
-void DrawTan()
+void DrawTan(COLORREF color)
 {
-
+	static float y, x;
+	for (x = -SIGHT_HALF; x <= SIGHT_HALF; x += 0.001f) {
+		y = tanf(x);
+		putpixel(x * SIGHT_SCALE, y * SIGHT_SCALE, color);
+	}
 }
 
 void DrawAbsLine(char* express)
@@ -150,9 +164,13 @@ int main(int argc, char* argv[]) {
 	DrawQuadrant();
 
 
-	DrawPhyLine((char*)"1*x*x+7x-18");
-	LineEqual((char*)"y=2x-6",SIGHT_MAX,GREEN);
-	CicleEqual((char*)"(x-2)+(y-4)=16", RED);
+	//DrawPhyLine((char*)"1*x*x+7x-18");
+	//LineEqual((char*)"y=2x-6",SIGHT_MAX,GREEN);
+	//CicleEqual((char*)"(x-2)+(y-4)=16", RED);
+
+	DrawSin(YELLOW);
+	DrawCos(CYAN);
+	DrawTan(RED);
 
 	int ret = getchar();
 
