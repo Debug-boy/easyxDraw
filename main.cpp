@@ -3,20 +3,23 @@
 #include <easyx.h>
 
 #define SIGHT_W		800
-#define SIGHT_H		800
+#define SIGHT_H			800
 #define SIGHT_MAX	800
 #define SIGHT_HALF	400
 #define SIGHT_SCALE 10
 
 #define PI 3.1415926f
 
+#define PHY_MOD_YBS	0
+#define PHY_MOD_DDS 1
+
 typedef struct {
 	float x;
 	float y;
 }POINTF;
 
-void LineEqual(const char* equal, float length, COLORREF color);
-void LineEqual(float _value, float mod, int length, COLORREF color);
+void DrawPhyLine(const char* expression, bool drawAxis, int mod, COLORREF color);
+void LineEqual(float _value, char mod, int length, COLORREF color);
 
 void DrawQuadrant()
 {
@@ -40,6 +43,8 @@ void InitMyDraw()
 	setaspectratio(1, -1);
 }
 
+
+//y=ax^2
 void DrawPhyLine()
 {
 	float y, x;//y=x^2;
@@ -52,22 +57,53 @@ void DrawPhyLine()
 	}
 }
 
+/*
+y=a*x*x+bx+c
+y=(x-(h))^2+k;
+*/
+void DrawPhyLine(const char* expression,bool drawAxis,int mod,COLORREF color) {
 
-//y=a*x*x+bx+c
-void DrawPhyLine(char* expression) {
+	static float a = 1, b, c, h, k;
+	static float x, y, axis;
+	static int ret;
 
-	static float a, b, c;
-	static float x, y;
-	int ret = sscanf(expression, "%f*x*x%fx%f", &a, &b, &c);
+	switch (mod)
+	{
+	case PHY_MOD_YBS:
+		ret = sscanf(expression, "%f*x*x%fx%f", &a, &b, &c);//解析一般式
+		axis = -(b / 2 * a);
+		break;
+
+	case PHY_MOD_DDS:
+		ret = sscanf(expression, "%f(x-(%f))^2+%f", &a, &h, &k);//解析顶点式(x-(6)+4
+		axis = h;
+		break;
+
+	default:
+		break;
+	}
 
 	//half = -(b/2*a);
-
-	float half_X = -(b / 2 * a);
-	LineEqual(half_X,1,SIGHT_MAX,RED);
-
+	//是否绘制对称轴
+	if (drawAxis)
+		LineEqual(axis, 'x', SIGHT_MAX, RED);
+	
 	for (x = -SIGHT_W; x < SIGHT_W; x += 0.01f) {
-		y = a *(x*x) + (b*x) + c;
-		putpixel(x * SIGHT_SCALE, y * SIGHT_SCALE, CYAN);
+
+		switch (mod)
+		{
+		case PHY_MOD_YBS:
+			y = a * (x * x) + (b * x) + c;
+			break;
+
+		case PHY_MOD_DDS:
+			y = (x - h) * (x - h) + k;
+			break;
+
+		default:
+			break;
+		}
+		putpixel(x * SIGHT_SCALE, y * SIGHT_SCALE, color);
 	}
 }
 
@@ -98,14 +134,23 @@ void LineEqual(const char* expression,float length,COLORREF color)
 }
 
 
-//1.x=0,  2.y=0;
-void LineEqual(float _value, float mod, int length, COLORREF color) {
+//1.x=0,  2.y=0;	特殊类型直线
+void LineEqual(float _value, char mod, int length, COLORREF color) {
 	setlinecolor(color);
 	_value *= 10;
-	if (mod)
+	switch (mod)
+	{
+	case 'x':
 		line(_value, length / 2, _value, -(length / 2));
-	else
+		break;
+
+	case 'y':
 		line(length / 2, _value, -(length / 2), _value);
+		break;
+
+	default:
+		break;
+	}
 }
 
 
@@ -136,7 +181,7 @@ void DrawCos(COLORREF color)
 {
 	static float y, x;
 	for (x = -SIGHT_HALF; x <= SIGHT_HALF; x += 0.001f) {
-		y = cosf(x);
+		y = cosf(x+1.5f);
 		putpixel(x * SIGHT_SCALE, y * SIGHT_SCALE, color);
 	}
 }
@@ -164,13 +209,17 @@ int main(int argc, char* argv[]) {
 	DrawQuadrant();
 
 
-	//DrawPhyLine((char*)"1*x*x+7x-18");
-	//LineEqual((char*)"y=2x-6",SIGHT_MAX,GREEN);
+	DrawPhyLine("1(x-(0))^2+5", true, 1, CYAN);
+	DrawPhyLine("1*x*x+8x-18",false,0,CYAN);
+	LineEqual((char*)"y=2x-6",SIGHT_MAX,GREEN);
 	//CicleEqual((char*)"(x-2)+(y-4)=16", RED);
 
-	DrawSin(YELLOW);
-	DrawCos(CYAN);
-	DrawTan(RED);
+	//LineEqual(3, 'y', SIGHT_MAX, RED);
+
+
+	//DrawSin(YELLOW);
+	//DrawCos(CYAN);
+	//DrawTan(RED);
 
 	int ret = getchar();
 
