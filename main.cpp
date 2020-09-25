@@ -202,6 +202,66 @@ void DrawAbsLine(char* express)
 }
 
 
+#define INTERVAL_BETWEEN	0
+#define INTERVAL_BO
+
+/*
+0闭区间	[1,2]		(2,3)
+1开区间	[1,2]U[3,4]
+2左无限	(-∞,0)
+3右无限	(0,+∞)
+*/
+
+void DrawInterVal(const char* expression,int mod,float drawHeight, COLORREF LineColor, COLORREF pointColor) {
+
+	static float left, right;
+	static char s1, s2, s3, s4;
+	static int ret;
+	
+	switch (mod)
+	{
+	case INTERVAL_BETWEEN:
+		ret = sscanf(expression, "%c%f,%f%c", &s1, &left, &right, &s2);
+
+		
+		setlinecolor(pointColor);
+		setfillcolor(pointColor);
+		//绘制端点圆心
+		if (s1 == '(')
+			circle(left * SIGHT_SCALE, 0, 5);
+		else
+			solidcircle(left * SIGHT_SCALE, 0, 5);
+
+		if (s2 == ')')
+			circle(right * SIGHT_SCALE, 0, 5);
+		else
+			solidcircle(right * SIGHT_SCALE, 0, 5);
+
+		setlinecolor(LineColor);
+		
+		line(
+			left * SIGHT_SCALE, 0,
+			left * SIGHT_SCALE, drawHeight * SIGHT_SCALE);//绘制向上_left
+
+		line(
+			right * SIGHT_SCALE, 0,
+			right * SIGHT_SCALE, drawHeight * SIGHT_SCALE);//绘制向上_right
+
+		line(
+			left * SIGHT_SCALE, drawHeight * SIGHT_SCALE,
+			right * SIGHT_SCALE, drawHeight * SIGHT_SCALE);//绘制横线
+
+		break;
+
+
+
+	default:
+		break;
+	}
+
+
+}
+
 int main(int argc, char* argv[]) {
 
 	initgraph(800, 800, 0);
@@ -209,13 +269,14 @@ int main(int argc, char* argv[]) {
 	DrawQuadrant();
 
 
-	DrawPhyLine("1(x-(0))^2+5", true, 1, CYAN);
-	DrawPhyLine("1*x*x+8x-18",false,0,CYAN);
-	LineEqual((char*)"y=2x-6",SIGHT_MAX,GREEN);
+	//DrawPhyLine("1(x-(0))^2+5", true, 1, CYAN);
+	//DrawPhyLine("1*x*x+8x-18",false,0,CYAN);
+	//LineEqual((char*)"y=2x-6",SIGHT_MAX,GREEN);
 	//CicleEqual((char*)"(x-2)+(y-4)=16", RED);
 
 	//LineEqual(3, 'y', SIGHT_MAX, RED);
 
+	DrawInterVal("[-2,2)", INTERVAL_BETWEEN, 5, CYAN, RED);
 
 	//DrawSin(YELLOW);
 	//DrawCos(CYAN);
