@@ -2,6 +2,8 @@
 #include <iostream>
 #include <easyx.h>
 
+using namespace std;
+
 #define SIGHT_W		800
 #define SIGHT_H			800
 #define SIGHT_MAX	800
@@ -203,7 +205,9 @@ void DrawAbsLine(char* express)
 
 
 #define INTERVAL_BETWEEN	0
-#define INTERVAL_BO
+#define INTERVAL_DOUBLE	1
+#define INTERVAL_MINMIN	0xFFFFFFFF
+#define INTERVAL_MAXMAX	0x7FFFFFFF
 
 /*
 0闭区间	[1,2]		(2,3)
@@ -214,18 +218,18 @@ void DrawAbsLine(char* express)
 
 void DrawInterVal(const char* expression,int mod,float drawHeight, COLORREF LineColor, COLORREF pointColor) {
 
-	static float left, right;
+	static float left,left1, right,right1;
 	static char s1, s2, s3, s4;
 	static int ret;
-	
+
+	setlinecolor(pointColor);
+	setfillcolor(pointColor);
+
 	switch (mod)
 	{
 	case INTERVAL_BETWEEN:
 		ret = sscanf(expression, "%c%f,%f%c", &s1, &left, &right, &s2);
 
-		
-		setlinecolor(pointColor);
-		setfillcolor(pointColor);
 		//绘制端点圆心
 		if (s1 == '(')
 			circle(left * SIGHT_SCALE, 0, 5);
@@ -237,7 +241,6 @@ void DrawInterVal(const char* expression,int mod,float drawHeight, COLORREF Line
 		else
 			solidcircle(right * SIGHT_SCALE, 0, 5);
 
-		setlinecolor(LineColor);
 		
 		line(
 			left * SIGHT_SCALE, 0,
@@ -255,6 +258,81 @@ void DrawInterVal(const char* expression,int mod,float drawHeight, COLORREF Line
 
 
 
+		//[1,2]U[3,4]
+	case INTERVAL_DOUBLE:
+		ret = sscanf(expression, "%c%f,%f%cU%c%f,%f%c", 
+			&s1, &left, &left1, &s2, 
+			&s3, &right, &right1, &s4);
+	
+		if (left == INTERVAL_MINMIN)
+			line(-9999, drawHeight * SIGHT_SCALE,
+				left1*SIGHT_SCALE, drawHeight * SIGHT_SCALE);
+		else
+			line(left*SIGHT_SCALE, drawHeight * SIGHT_SCALE,
+				left1*SIGHT_SCALE, drawHeight * SIGHT_SCALE);
+
+		line(left*SIGHT_SCALE, 0, left * SIGHT_SCALE, drawHeight * SIGHT_SCALE);
+		line(left1 * SIGHT_SCALE, 0, left1 * SIGHT_SCALE, drawHeight * SIGHT_SCALE);
+
+		if (right1 == INTERVAL_MAXMAX)
+			line(9999, drawHeight * SIGHT_SCALE, right * SIGHT_SCALE, drawHeight * SIGHT_SCALE);
+		else
+			line(right1 * SIGHT_SCALE, drawHeight * SIGHT_SCALE,
+				right * SIGHT_SCALE, drawHeight * SIGHT_SCALE);
+
+		line(right * SIGHT_SCALE, 0, right * SIGHT_SCALE, drawHeight * SIGHT_SCALE);
+		line(right1 * SIGHT_SCALE, 0, right1 * SIGHT_SCALE, drawHeight * SIGHT_SCALE);
+
+		switch (s1)
+		{
+		case '(':
+			circle(left * SIGHT_SCALE, 0, 5); break;
+
+		case '[':
+			solidcircle(left * SIGHT_SCALE, 0, 5); break;
+		
+		default:
+			break;
+		}
+
+		switch (s2)
+		{
+		case ')':
+			circle(left1 * SIGHT_SCALE, 0, 5); break;
+
+		case ']':
+			solidcircle(left1 * SIGHT_SCALE, 0, 5); break;
+
+		default:
+			break;
+		}
+
+		switch (s3)
+		{
+			
+		case '(':
+			circle(right * SIGHT_SCALE, 0, 5); break;
+
+		case '[':
+			solidcircle(right * SIGHT_SCALE, 0, 5); break;
+
+		default:
+			break;
+		}
+
+		switch (s4)
+		{
+
+		case ')':
+			circle(right1 * SIGHT_SCALE, 0, 5); break;
+
+		case ']':
+			solidcircle(right1 * SIGHT_SCALE, 0, 5); break;
+
+		default:
+			break;
+		}
+
 	default:
 		break;
 	}
@@ -264,7 +342,7 @@ void DrawInterVal(const char* expression,int mod,float drawHeight, COLORREF Line
 
 int main(int argc, char* argv[]) {
 
-	initgraph(800, 800, 0);
+	initgraph(SIGHT_W, SIGHT_H, 0);
 	InitMyDraw();
 	DrawQuadrant();
 
@@ -276,11 +354,16 @@ int main(int argc, char* argv[]) {
 
 	//LineEqual(3, 'y', SIGHT_MAX, RED);
 
-	DrawInterVal("[-2,2)", INTERVAL_BETWEEN, 5, CYAN, RED);
+	//DrawInterVal("[-2,2)", INTERVAL_BETWEEN, 5, CYAN, RED);
+	//DrawInterVal("[-5,10]", INTERVAL_BETWEEN, 5, CYAN, RED);
+	DrawInterVal("[-5,-2]U[1,3]", INTERVAL_DOUBLE, 5, CYAN, RED);
 
 	//DrawSin(YELLOW);
 	//DrawCos(CYAN);
 	//DrawTan(RED);
+
+	//cout << '∞' << endl;
+	//printf("%c\n", '∞');
 
 	int ret = getchar();
 
