@@ -198,10 +198,6 @@ void DrawTan(COLORREF color)
 	}
 }
 
-void DrawAbsLine(char* express)
-{
-
-}
 
 
 #define INTERVAL_BETWEEN	0
@@ -215,7 +211,6 @@ void DrawAbsLine(char* express)
 2左无限	(-∞,0)
 3右无限	(0,+∞)
 */
-
 void DrawInterVal(const char* expression,int mod,float drawHeight, COLORREF LineColor, COLORREF pointColor) {
 
 	static float left,left1, right,right1;
@@ -340,6 +335,24 @@ void DrawInterVal(const char* expression,int mod,float drawHeight, COLORREF Line
 
 }
 
+//	|x|=3
+void DrawAbsLine(const char* express,float height,COLORREF color)
+{
+	static int ret;
+	static float x;
+	static float x1, x2;
+	static char buffer[128];
+
+	ret = sscanf(express, "|x|=%f",&x);
+	x1 = x;
+	x2 = -x;
+
+	sprintf(buffer, "[%f,%f]", x1, x2);
+
+	DrawInterVal(buffer, INTERVAL_BETWEEN, height, color, color);
+
+}
+
 int main(int argc, char* argv[]) {
 
 	initgraph(SIGHT_W, SIGHT_H, 0);
@@ -356,7 +369,8 @@ int main(int argc, char* argv[]) {
 
 	//DrawInterVal("[-2,2)", INTERVAL_BETWEEN, 5, CYAN, RED);
 	//DrawInterVal("[-5,10]", INTERVAL_BETWEEN, 5, CYAN, RED);
-	DrawInterVal("[-5,-2]U[1,3]", INTERVAL_DOUBLE, 5, CYAN, RED);
+	//DrawInterVal("[-5,-2]U[1,3]", INTERVAL_DOUBLE, 5, CYAN, RED);
+	//DrawAbsLine("|x|=3", 10, CYAN);
 
 	//DrawSin(YELLOW);
 	//DrawCos(CYAN);
