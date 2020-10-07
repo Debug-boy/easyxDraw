@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <easyx.h>
+#include <vector>
 
 using namespace std;
 
@@ -8,7 +9,8 @@ using namespace std;
 #define SIGHT_H			800
 #define SIGHT_MAX	800
 #define SIGHT_HALF	400
-#define SIGHT_SCALE 10
+//#define SIGHT_SCALE 100
+float SIGHT_SCALE = 10;
 
 #define PI 3.1415926f
 
@@ -23,8 +25,14 @@ typedef struct {
 void DrawPhyLine(const char* expression, bool drawAxis, int mod, COLORREF color);
 void LineEqual(float _value, char mod, int length, COLORREF color);
 
-void DrawQuadrant()
+
+void setScale(double scale) {
+	SIGHT_SCALE = scale;
+}
+
+void DrawQuadrant(float scale)
 {
+	setScale(scale);
 	int x, y;
 	x = SIGHT_W / 2;
 	y = SIGHT_H / 2;
@@ -44,6 +52,7 @@ void InitMyDraw()
 	setorigin(SIGHT_W/2, SIGHT_H/2);
 	setaspectratio(1, -1);
 }
+
 
 
 //y=ax^2
@@ -331,9 +340,33 @@ void DrawInterVal(const char* expression,int mod,float drawHeight, COLORREF Line
 	default:
 		break;
 	}
-
-
 }
+
+template <typename T>
+struct Vector2 {
+	T x;
+	T y;
+
+	void set_xy(T _x, T _y) {
+		x = _x;
+		y = _y;
+	}
+
+};
+
+template <typename T>
+void Multipoint(vector<Vector2<T>>p,COLORREF color) {
+	setlinecolor(color);
+	for (int i = 0; i < p.size()-1; i++) {
+		p[i].x,p[i].y;
+		line(
+			p[i].x, p[i].y,
+			p[i + 1].x, p[i + 1].y
+		);
+	}
+	
+}
+
 
 //	|x|=3
 void DrawAbsLine(const char* express,float height,COLORREF color)
@@ -353,15 +386,69 @@ void DrawAbsLine(const char* express,float height,COLORREF color)
 
 }
 
+template <typename T>
+T MySqrt(T _x) {
+	return (_x > (T)0) ? (T)sqrt((T)_x) : -(sqrt((T)-_x));
+}
+
+
+template <typename T>
+T MyPow(T _x,T _y) {
+	return (_x > (T)0) ? (T)pow(T(_x), T(_y)) :
+		-(pow((T)-_x, (T)_y));
+}
+
+
+template <typename T>
+void Draw(T(*fun)(T) ,DWORD dwMilliseconds, COLORREF color) {
+
+	for (double x = -SIGHT_HALF; x <= SIGHT_HALF; x += 0.001) {
+		T y = fun(x);
+		putpixel(x * SIGHT_SCALE, y * SIGHT_SCALE, color);
+		SleepEx(dwMilliseconds, true);//设置整体绘制延
+	}
+}
+
+double f(double x)
+{
+	//return MyPow<double>(MyPow<double>(x, 4) - 2 * MyPow<double>(x, 3), 1.0/3.0);
+
+	//return x * MyPow<double>(x - 2.0, 1 / 3.0);
+	//return MyPow<double>(3.0, 2 - x);//sqrt(-x);
+
+	//return MyPow<double>(x, 3.0) - 6 * MyPow<double>(x, 2.0) + 11 * x - 6.0;
+	//return 9*MyPow<double>(x, 3.0) - 12* MyPow<double>(x, 2.0) + 3* x;
+	
+	return 3 * MyPow<double>(x, 2.0) - 4 * MyPow<double>(x, 1) + 1;
+}
+
+
+
+
 int main(int argc, char* argv[]) {
 
 	initgraph(SIGHT_W, SIGHT_H, 0);
 	InitMyDraw();
-	DrawQuadrant();
+	DrawQuadrant(100);
+	
+
+	Draw(f, 0, 0xFFFF00);
+
+
+
+	//vector<Vector2<double>>p;
+	//for (double x = -SIGHT_HALF; x <= SIGHT_HALF; x += 0.001) {
+	//	Vector2<double>point;
+	//	double y = f(x);
+	//	point.set_xy(x * SIGHT_SCALE,y * SIGHT_SCALE);
+	//	p.push_back(point);
+	//}
+	//Multipoint(p, CYAN);
+	// 
 
 
 	//DrawPhyLine("1(x-(0))^2+5", true, 1, CYAN);
-	//DrawPhyLine("1*x*x+8x-18",false,0,CYAN);
+	//DrawPhyLine("1*x*x-6x+5",false,0,CYAN);
 	//LineEqual((char*)"y=2x-6",SIGHT_MAX,GREEN);
 	//CicleEqual((char*)"(x-2)+(y-4)=16", RED);
 
